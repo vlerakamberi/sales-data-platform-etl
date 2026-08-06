@@ -216,3 +216,42 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local environment files
+.env.*
+!.env.example
+
+# IDE-local settings
+.idea/
+.vscode/
+
+# Generated application logs
+/logs/*
+!/logs/.gitkeep
+
+# Generated data-zone outputs
+/data/raw/**
+!/data/raw/.gitkeep
+/data/staging/**
+!/data/staging/.gitkeep
+/data/curated/**
+!/data/curated/.gitkeep
+
+# Local database artifacts
+*.db
+*.db-journal
+*.sqlite
+*.sqlite-journal
+*.sqlite3
+*.sqlite3-journal
+
+# Operating-system temporary files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# Preserve approved directory placeholders
+!.gitkeep
