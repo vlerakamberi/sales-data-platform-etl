@@ -14,7 +14,8 @@ capabilities that will supply downstream portfolio repositories. Repository 2
 is a future downstream evolution point, not functionality contained here. The
 other repositories remain separate portfolio concerns.
 
-Milestone 1 is in progress through its documented project-foundation stage.
+**Current status:** Milestone 1 — Project Foundation is complete and validated.
+
 The following capabilities are implemented:
 
 - deterministic, centralized repository paths;
