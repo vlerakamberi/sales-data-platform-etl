@@ -1,0 +1,45 @@
+# Configuration guide
+
+Configuration is owned by `sales_data_platform.config.settings.Settings`, built
+with Pydantic and pydantic-settings.
+
+## Active environment variables
+
+| Variable | Type and accepted values | Safe default |
+| --- | --- | --- |
+| `APPLICATION_ENV` | `development`, `test`, or `production` | `development` |
+| `LOG_LEVEL` | `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL` | `INFO` |
+| `LOG_TO_FILE` | Boolean | `false` |
+| `LOG_DIRECTORY` | `pathlib.Path` | Centralized `LOGS_DIR` |
+
+No database configuration currently exists. Database variables, credentials,
+and connection strings are not active settings.
+
+## Precedence
+
+Settings use this precedence, from highest to lowest:
+
+```text
+process environment
+        >
+repository-root .env
+        >
+safe defaults
+```
+
+The real `.env` is local and ignored. `.env.example` contains only safe active
+settings.
+
+## `LOG_DIRECTORY` contract
+
+- The Python type is `pathlib.Path`.
+- The default is centralized `LOGS_DIR` from `common.paths`.
+- A relative override resolves against centralized `PROJECT_ROOT`.
+- An absolute override remains absolute.
+- `Path.cwd()` has no effect on its meaning.
+- Normalization occurs inside the settings layer.
+- Settings loading does not create the directory.
+- Consumers receive the already-resolved path and must not reinterpret it.
+
+The logging layer creates the directory only when file logging is enabled and
+initialization requires it.
