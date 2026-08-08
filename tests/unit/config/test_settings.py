@@ -18,10 +18,86 @@ def test_safe_defaults_and_expected_types() -> None:
     assert settings.log_level == "INFO"
     assert settings.log_to_file is False
     assert settings.log_directory == LOGS_DIR
+    assert settings.database_host is None
+    assert settings.database_port is None
+    assert settings.database_name is None
+    assert settings.database_username is None
+    assert settings.database_password is None
     assert isinstance(settings.application_env, str)
     assert isinstance(settings.log_level, str)
     assert isinstance(settings.log_to_file, bool)
     assert isinstance(settings.log_directory, Path)
+
+
+def test_valid_database_configuration_is_accepted() -> None:
+    settings = Settings(
+        _env_file=None,
+        DATABASE_HOST="postgres.internal",
+        DATABASE_PORT="5433",
+        DATABASE_NAME="sales",
+        DATABASE_USERNAME="etl_user",
+        DATABASE_PASSWORD="local-credential",
+    )
+
+    assert settings.database_host == "postgres.internal"
+    assert settings.database_port == 5433
+    assert settings.database_name == "sales"
+    assert settings.database_username == "etl_user"
+    assert settings.database_password.get_secret_value() == "local-credential"
+
+
+@pytest.mark.parametrize("value", ["zero", "0", "65536", "5432.5"])
+def test_invalid_database_port_is_rejected(value: str) -> None:
+    with pytest.raises(ValidationError):
+        Settings(
+            _env_file=None,
+            DATABASE_HOST="postgres.internal",
+            DATABASE_PORT=value,
+            DATABASE_NAME="sales",
+            DATABASE_USERNAME="etl_user",
+            DATABASE_PASSWORD="local-credential",
+        )
+
+
+@pytest.mark.parametrize(
+    "missing_variable",
+    [
+        "DATABASE_HOST",
+        "DATABASE_PORT",
+        "DATABASE_NAME",
+        "DATABASE_USERNAME",
+        "DATABASE_PASSWORD",
+    ],
+)
+def test_partial_database_configuration_is_rejected(missing_variable: str) -> None:
+    database_configuration = {
+        "DATABASE_HOST": "postgres.internal",
+        "DATABASE_PORT": "5432",
+        "DATABASE_NAME": "sales",
+        "DATABASE_USERNAME": "etl_user",
+        "DATABASE_PASSWORD": "local-credential",
+    }
+    database_configuration.pop(missing_variable)
+
+    with pytest.raises(ValidationError, match="fully provided or fully absent"):
+        Settings(_env_file=None, **database_configuration)
+
+
+def test_database_password_is_secret_safe() -> None:
+    password = "credential-that-must-not-appear"
+
+    settings = Settings(
+        _env_file=None,
+        DATABASE_HOST="postgres.internal",
+        DATABASE_PORT="5432",
+        DATABASE_NAME="sales",
+        DATABASE_USERNAME="etl_user",
+        DATABASE_PASSWORD=password,
+    )
+
+    assert password not in repr(settings)
+    assert password not in str(settings)
+    assert password not in settings.model_dump_json()
 
 
 def test_process_environment_overrides_defaults(
@@ -31,6 +107,11 @@ def test_process_environment_overrides_defaults(
     monkeypatch.setenv("LOG_LEVEL", "ERROR")
     monkeypatch.setenv("LOG_TO_FILE", "true")
     monkeypatch.setenv("LOG_DIRECTORY", "runtime-logs")
+    monkeypatch.setenv("DATABASE_HOST", "environment-postgres")
+    monkeypatch.setenv("DATABASE_PORT", "5434")
+    monkeypatch.setenv("DATABASE_NAME", "environment-sales")
+    monkeypatch.setenv("DATABASE_USERNAME", "environment-user")
+    monkeypatch.setenv("DATABASE_PASSWORD", "environment-password")
 
     settings = Settings(_env_file=None)
 
@@ -38,6 +119,12 @@ def test_process_environment_overrides_defaults(
     assert settings.log_level == "ERROR"
     assert settings.log_to_file is True
     assert settings.log_directory == PROJECT_ROOT / "runtime-logs"
+    assert settings.database_host == "environment-postgres"
+    assert settings.database_port == 5434
+    assert settings.database_name == "environment-sales"
+    assert settings.database_username == "environment-user"
+    assert settings.database_password is not None
+    assert settings.database_password.get_secret_value() == "environment-password"
 
 
 def test_dotenv_values_load(tmp_path: Path) -> None:
@@ -46,7 +133,12 @@ def test_dotenv_values_load(tmp_path: Path) -> None:
         "APPLICATION_ENV=test\n"
         "LOG_LEVEL=WARNING\n"
         "LOG_TO_FILE=true\n"
-        "LOG_DIRECTORY=dotenv-logs\n",
+        "LOG_DIRECTORY=dotenv-logs\n"
+        "DATABASE_HOST=dotenv-postgres\n"
+        "DATABASE_PORT=5435\n"
+        "DATABASE_NAME=dotenv-sales\n"
+        "DATABASE_USERNAME=dotenv-user\n"
+        "DATABASE_PASSWORD=dotenv-password\n",
         encoding="utf-8",
     )
 
@@ -56,6 +148,12 @@ def test_dotenv_values_load(tmp_path: Path) -> None:
     assert settings.log_level == "WARNING"
     assert settings.log_to_file is True
     assert settings.log_directory == PROJECT_ROOT / "dotenv-logs"
+    assert settings.database_host == "dotenv-postgres"
+    assert settings.database_port == 5435
+    assert settings.database_name == "dotenv-sales"
+    assert settings.database_username == "dotenv-user"
+    assert settings.database_password is not None
+    assert settings.database_password.get_secret_value() == "dotenv-password"
 
 
 def test_process_environment_overrides_dotenv(
@@ -63,16 +161,33 @@ def test_process_environment_overrides_dotenv(
 ) -> None:
     env_file = tmp_path / ".env"
     env_file.write_text(
-        "APPLICATION_ENV=development\nLOG_LEVEL=INFO\n",
+        "APPLICATION_ENV=development\n"
+        "LOG_LEVEL=INFO\n"
+        "DATABASE_HOST=dotenv-postgres\n"
+        "DATABASE_PORT=5435\n"
+        "DATABASE_NAME=dotenv-sales\n"
+        "DATABASE_USERNAME=dotenv-user\n"
+        "DATABASE_PASSWORD=dotenv-password\n",
         encoding="utf-8",
     )
     monkeypatch.setenv("APPLICATION_ENV", "production")
     monkeypatch.setenv("LOG_LEVEL", "CRITICAL")
+    monkeypatch.setenv("DATABASE_HOST", "environment-postgres")
+    monkeypatch.setenv("DATABASE_PORT", "5434")
+    monkeypatch.setenv("DATABASE_NAME", "environment-sales")
+    monkeypatch.setenv("DATABASE_USERNAME", "environment-user")
+    monkeypatch.setenv("DATABASE_PASSWORD", "environment-password")
 
     settings = Settings(_env_file=env_file)
 
     assert settings.application_env == "production"
     assert settings.log_level == "CRITICAL"
+    assert settings.database_host == "environment-postgres"
+    assert settings.database_port == 5434
+    assert settings.database_name == "environment-sales"
+    assert settings.database_username == "environment-user"
+    assert settings.database_password is not None
+    assert settings.database_password.get_secret_value() == "environment-password"
 
 
 @pytest.mark.parametrize("value", ["development", "test", "production"])

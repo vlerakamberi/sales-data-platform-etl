@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from sales_data_platform.common.paths import LOGS_DIR, PROJECT_ROOT
@@ -33,6 +33,49 @@ class Settings(BaseSettings):
         default=LOGS_DIR,
         validation_alias="LOG_DIRECTORY",
     )
+    database_host: str | None = Field(
+        default=None,
+        min_length=1,
+        validation_alias="DATABASE_HOST",
+    )
+    database_port: int | None = Field(
+        default=None,
+        ge=1,
+        le=65535,
+        validation_alias="DATABASE_PORT",
+    )
+    database_name: str | None = Field(
+        default=None,
+        min_length=1,
+        validation_alias="DATABASE_NAME",
+    )
+    database_username: str | None = Field(
+        default=None,
+        min_length=1,
+        validation_alias="DATABASE_USERNAME",
+    )
+    database_password: SecretStr | None = Field(
+        default=None,
+        min_length=1,
+        validation_alias="DATABASE_PASSWORD",
+    )
+
+    @model_validator(mode="after")
+    def validate_database_configuration(self) -> "Settings":
+        """Require database settings as one complete optional group."""
+        database_values = (
+            self.database_host,
+            self.database_port,
+            self.database_name,
+            self.database_username,
+            self.database_password,
+        )
+        configured_count = sum(value is not None for value in database_values)
+        if configured_count not in (0, len(database_values)):
+            raise ValueError(
+                "Database configuration must be either fully provided or fully absent"
+            )
+        return self
 
     @field_validator("log_directory", mode="after")
     @classmethod
