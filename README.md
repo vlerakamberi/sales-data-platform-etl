@@ -14,9 +14,8 @@ capabilities that will supply downstream portfolio repositories. Repository 2
 is a future downstream evolution point, not functionality contained here. The
 other repositories remain separate portfolio concerns.
 
-**Current status:** Milestone 3 — Data Ingestion Layer implementation and
-end-to-end local validation are complete; final Milestone 3 validation and
-formal closure are pending.
+**Current status:** Milestone 3 — Data Ingestion Layer is complete and
+validated.
 
 The following capabilities are implemented:
 

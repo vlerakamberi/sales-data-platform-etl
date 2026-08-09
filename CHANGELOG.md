@@ -5,6 +5,22 @@ been assigned.
 
 ## Unreleased
 
+### Milestone 3 — Data Ingestion Layer
+
+- Completed and validated immutable versioned source contracts for product
+  catalog, ecommerce sales, and retail sales inputs.
+- Added deterministic constrained source discovery, exact raw-byte SHA-256,
+  and deterministic `SourceIdentity` calculation.
+- Added deterministic structural CSV parsing and source-contract validation
+  with record provenance and separate source and run identities.
+- Added a file-level atomic ingestion service that returns an immutable
+  `ValidatedBatch` only after complete source validation.
+- Added safe centralized ingestion observability without logging complete raw
+  records by default.
+- Validated the PostgreSQL-independent Milestone 3 ingestion core and local
+  end-to-end boundary while preserving Milestone 1 and Milestone 2 regression
+  contracts.
+
 ### Milestone 2 — Database Design & Implementation
 
 - Completed and validated the Repository 1 PostgreSQL database foundation.
