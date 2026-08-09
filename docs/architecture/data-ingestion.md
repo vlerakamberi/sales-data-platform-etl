@@ -168,6 +168,32 @@ synthetic-file integration tests exercise the ingestion boundary. Existing
 Milestone 2 PostgreSQL tests remain regression evidence, but core ingestion
 testing introduces no PostgreSQL dependency.
 
+## Validated implementation
+
+The implemented local boundary resolves one exact built-in contract through
+`ingest_source_file()`, discovers an eligible CSV below the configured
+`INGESTION_SOURCE_ROOT`, establishes its normalized source identifier, content
+SHA-256, and stable source identity, parses it strictly, validates every record,
+and returns one immutable `ValidatedBatch`. Any controlled discovery, contract,
+parse, or record failure returns no batch. Lifecycle logs carry bounded
+contract, source, identity, run, count, and failure context without logging
+complete raw records.
+
+The supported directory convention is
+`<source-family>/v<version>/<file>.csv`. Production-local input defaults to
+`data/raw`; deterministic integration fixtures are held under
+`tests/fixtures/ingestion/data/raw` for `product_catalog/v1/products.csv`,
+`ecommerce_sales/v1/orders.csv`, and `retail_sales/v1/sales.csv`.
+
+Replaying unchanged content under the same contract and normalized source path
+produces the same content hash, source identity, and equivalent validated
+values. Each automatic execution receives a distinct run identity. End-to-end
+tests prove these semantics, exact source-specific typing and nullability,
+file-level atomicity, safe observability, and successful operation with no
+PostgreSQL access. This is the implemented evidence for ADR-002's versioned
+source contracts feeding a common ingestion boundary; canonical transformation
+and persistence remain downstream.
+
 ## Explicit out of scope
 
 Milestone 3 does not implement:

@@ -1,0 +1,3 @@
+receipt_number,transaction_timestamp,store_code,terminal_id,sku,quantity,unit_price,currency_code
+POS-1001,2026-08-02T09:30:00+02:00,STORE-001,TILL-01,SKU-1001,1,24.99,EUR
+POS-1002,2026-08-02T10:05:00+02:00,STORE-001,TILL-02,SKU-1002,2,19.50,EUR

@@ -1,10 +1,10 @@
 # Sales Data Platform ETL
 
 This repository is the local data-engineering foundation for the Northstar
-Retail Group portfolio. Northstar's intended platform must eventually move
-retail sales data through governed ingestion, transformation, quality, and
-delivery stages. This repository currently provides the application foundation
-for that work; it does not yet implement the ETL pipeline itself.
+Retail Group portfolio. It now includes a governed local ingestion boundary
+that turns approved source files into validated, provenance-aware batches for
+later transformation and persistence; it does not yet implement the complete
+ETL pipeline.
 
 ## Portfolio role and status
 
@@ -14,9 +14,9 @@ capabilities that will supply downstream portfolio repositories. Repository 2
 is a future downstream evolution point, not functionality contained here. The
 other repositories remain separate portfolio concerns.
 
-**Current status:** Milestone 2 — Database Design & Implementation is complete
-and validated. Repository 1 remains in active development; later ETL
-milestones are not yet implemented.
+**Current status:** Milestone 3 — Data Ingestion Layer implementation and
+end-to-end local validation are complete; final Milestone 3 validation and
+formal closure are pending.
 
 The following capabilities are implemented:
 
@@ -31,12 +31,15 @@ The following capabilities are implemented:
 - deterministic `ECOMMERCE` and `RETAIL` sales-channel reference data;
 - read-only physical-schema and exact reference-data contract validation;
 - guarded real-PostgreSQL tests using a dedicated `_test` database;
+- immutable `v1` contracts for product-catalog, ecommerce-sales, and
+  retail-sales CSV sources;
+- deterministic discovery, SHA-256 source identity, strict parsing, atomic
+  validation, provenance, replay semantics, and safe lifecycle logging;
 - side-effect-free package boundaries for future pipeline areas;
 - unit and integration tests, coverage reporting, and Ruff checks.
 
-Ingestion, transformation, data quality, orchestration, monitoring, Azure
-integration, and the complete ETL pipeline are planned capabilities. They are
-not implemented.
+Canonical transformation, persistence, orchestration, scheduling, quarantine,
+cloud ingestion, and the complete ETL pipeline remain planned capabilities.
 
 ## Architecture
 
@@ -71,6 +74,11 @@ sql/                        Authoritative migrations, seed, and SQL areas
 src/sales_data_platform/    Python package and application foundation
 tests/                      Unit and guarded PostgreSQL integration tests
 ```
+
+Local ingestion sources use the configured `INGESTION_SOURCE_ROOT` and the
+layout `<source-family>/v<version>/<file>.csv`. Tracked end-to-end fixtures live
+under `tests/fixtures/ingestion/data/raw/`; runtime data remains under the
+configured source root (default `data/raw`).
 
 The detailed tracked/generated/placeholder distinctions are documented in the
 [project structure guide](docs/project-structure.md).
@@ -131,11 +139,14 @@ the [logging guide](docs/development/logging-guide.md).
 
 ## Testing and quality
 
-Tests cover the Milestone 1 foundation plus migration integrity, deterministic
-reference data, exact PostgreSQL schema validation, deliberate drift,
-relational constraints, and optional relationships. PostgreSQL tests require a
+Tests cover the Milestone 1 foundation, Milestone 2 database contracts, and the
+Milestone 3 ingestion chain from configured-root discovery through validated
+batch output. Synthetic tracked fixtures prove all three contracts, stable
+content hashing and source identity, distinct replay runs, typed validation,
+file-level atomic failure, and non-disclosure of raw record data in logs. Core
+ingestion tests are PostgreSQL-independent. PostgreSQL tests still require a
 separately provisioned database whose configured name ends in `_test`; they
-verify the configured and connected names before allowlisted cleanup and never
+verify configured and connected names before allowlisted cleanup and never
 create or drop databases.
 
 Pytest collects from `tests/` and pytest-cov reports coverage for
@@ -146,6 +157,7 @@ No minimum coverage threshold is currently configured.
 
 - [Architecture overview](docs/architecture/architecture-overview.md)
 - [Database design](docs/architecture/database-design.md)
+- [Data ingestion architecture](docs/architecture/data-ingestion.md)
 - [ADR-001: SQL-first versioned migrations](docs/adr/ADR-001-sql-first-versioned-migration-strategy.md)
 - [Project structure](docs/project-structure.md)
 - [Setup guide](docs/development/setup-guide.md)
