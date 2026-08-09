@@ -27,3 +27,11 @@ class MigrationStateError(MigrationError):
 
 class MigrationExecutionError(MigrationError):
     """Raised when an approved migration cannot be applied transactionally."""
+
+
+class ReferenceDataConflictError(DatabaseInfrastructureError):
+    """Raised when authoritative reference data conflicts with existing state."""
+
+
+class ReferenceDataExecutionError(DatabaseInfrastructureError):
+    """Raised when approved reference data cannot be applied transactionally."""
