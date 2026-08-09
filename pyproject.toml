@@ -46,6 +46,9 @@ line-ending = "auto"
 minversion = "8.0"
 testpaths = ["tests"]
 pythonpath = ["src"]
+markers = [
+    "postgresql: requires the dedicated Repository 1 PostgreSQL test database",
+]
 addopts = [
     "--strict-config",
     "--strict-markers",

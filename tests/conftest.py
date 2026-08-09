@@ -1,5 +1,7 @@
 """Shared test configuration."""
 
+import os
+
 import pytest
 
 CONFIG_ENVIRONMENT_VARIABLES = (
@@ -16,7 +18,18 @@ CONFIG_ENVIRONMENT_VARIABLES = (
 
 
 @pytest.fixture(autouse=True)
-def isolate_configuration_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+def isolate_configuration_environment(
+    monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest
+) -> None:
     """Prevent configuration environment state from leaking between tests."""
+    database_environment = {
+        variable: os.environ.get(variable)
+        for variable in CONFIG_ENVIRONMENT_VARIABLES
+        if variable.startswith("DATABASE_")
+    }
     for variable in CONFIG_ENVIRONMENT_VARIABLES:
         monkeypatch.delenv(variable, raising=False)
+    if request.node.get_closest_marker("postgresql") is not None:
+        for variable, value in database_environment.items():
+            if value is not None:
+                monkeypatch.setenv(variable, value)
