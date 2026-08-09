@@ -6,7 +6,7 @@ from typing import Literal
 from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from sales_data_platform.common.paths import LOGS_DIR, PROJECT_ROOT
+from sales_data_platform.common.paths import LOGS_DIR, PROJECT_ROOT, RAW_DATA_DIR
 
 
 class Settings(BaseSettings):
@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     log_directory: Path = Field(
         default=LOGS_DIR,
         validation_alias="LOG_DIRECTORY",
+    )
+    ingestion_source_root: Path = Field(
+        default=RAW_DATA_DIR,
+        validation_alias="INGESTION_SOURCE_ROOT",
     )
     database_host: str | None = Field(
         default=None,
@@ -77,10 +81,10 @@ class Settings(BaseSettings):
             )
         return self
 
-    @field_validator("log_directory", mode="after")
+    @field_validator("log_directory", "ingestion_source_root", mode="after")
     @classmethod
-    def resolve_log_directory(cls, value: Path) -> Path:
-        """Resolve relative log directories from the repository root."""
+    def resolve_project_path(cls, value: Path) -> Path:
+        """Resolve relative configured paths from the repository root."""
         if value.is_absolute():
             return value.resolve()
         return (PROJECT_ROOT / value).resolve()
