@@ -5,6 +5,24 @@ been assigned.
 
 ## Unreleased
 
+### Milestone 2 — Database Design & Implementation
+
+- Completed and validated the Repository 1 PostgreSQL database foundation.
+- Accepted the SQL-first ordered/versioned immutable migration strategy in
+  ADR-001.
+- Added validated optional PostgreSQL configuration and explicit Psycopg
+  connection infrastructure.
+- Added V001 migration metadata, V002 core relational schema, and V003 approved
+  indexes with ordered execution, provenance, and SHA-256 integrity checks.
+- Added deterministic `ECOMMERCE` and `RETAIL` sales-channel reference data with
+  idempotent reconciliation and explicit conflict rejection.
+- Added read-only validation of the exact physical schema, explicit indexes,
+  and final sales-channel reference-data contract.
+- Added guarded real-PostgreSQL coverage for migration regression, schema drift,
+  relational integrity, monetary constraints, and optional relationships.
+- Completed final Milestone 2 installation, test, coverage, Ruff, dependency,
+  startup, security, and Git-hygiene validation.
+
 ### Milestone 1 — Project Foundation
 
 - Completed and validated the Repository 1 project foundation.
