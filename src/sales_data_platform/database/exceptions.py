@@ -35,3 +35,7 @@ class ReferenceDataConflictError(DatabaseInfrastructureError):
 
 class ReferenceDataExecutionError(DatabaseInfrastructureError):
     """Raised when approved reference data cannot be applied transactionally."""
+
+
+class DatabaseContractError(DatabaseInfrastructureError):
+    """Raised when the Milestone 2 physical database contract has drifted."""
