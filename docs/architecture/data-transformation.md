@@ -3,9 +3,10 @@
 ## Purpose and boundary
 
 Milestone 4 transforms validated, source-oriented Milestone 3 records into
-deterministic canonical Northstar business representations. This document
-defines the approved architecture; it does not claim that the transformation
-implementation is complete or validated.
+deterministic canonical Northstar business representations. The transformation
+layer is implemented and locally validated but not yet formally closed. This
+document reflects that implementation while preserving the approved
+architecture and its persistence boundary.
 
 The logical boundary is:
 
@@ -26,6 +27,11 @@ Milestone 4 starts at the Milestone 3 validated ingestion boundary. It must not
 reopen raw source files or duplicate Milestone 3 parsing or source-contract
 validation. The centralized foundations and frozen contracts from Milestones
 1–3 remain unchanged.
+
+Local integration validation also composes a physical synthetic source through
+`ingest_source_file()`, `ValidatedBatch`, `transform_batch()`, explicit ordered
+outcomes, and `TransformationBatchResult`. This validates the boundary without
+making transformation depend on the filesystem or PostgreSQL.
 
 ## Supported v1 contracts
 
@@ -182,6 +188,9 @@ Every attempted validated record receives exactly one explicit outcome from:
 
 There is no silent record loss. This outcome model does not design quarantine,
 retry, dead-letter, or generalized Data Quality Framework infrastructure.
+Batch results derive record, success, and failure counts from ordered outcomes;
+successful canonical records remain available in source order. Fractional
+quantity is locally validated as a governed `BUSINESS_RULE_REJECTED` outcome.
 
 ## Provenance
 
@@ -220,6 +229,21 @@ The transformation boundary:
 - does not introduce ORM schema ownership.
 
 Persistence ownership remains separately governed.
+
+## Local validation status
+
+Local unit and integration coverage validates all three governed `v1`
+contracts, exact source dispatch, canonical products and sales lines, UTC
+normalization, exact `Decimal` line amounts, provenance and transformation
+ruleset continuity, deterministic replay, and run-identity separation. It also
+validates that customer email is not promoted to canonical identity or exposed
+by transformation lifecycle logs, that retail `store_code` remains a business
+key, and that `terminal_id` remains source-local context.
+
+The validated boundary ends at `TransformationBatchResult`. It performs no
+aggregation, surrogate-identity resolution, database access, SQL execution, or
+persistence. This local validation is not a claim of formal Milestone 4 closure,
+Repository 1 completion, Data Quality Framework implementation, or orchestration.
 
 ## Explicit non-goals
 

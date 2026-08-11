@@ -15,7 +15,8 @@ is a future downstream evolution point, not functionality contained here. The
 other repositories remain separate portfolio concerns.
 
 **Current status:** Milestone 3 — Data Ingestion Layer is complete and
-validated.
+validated. The Milestone 4 transformation layer is implemented and locally
+validated but not yet formally closed.
 
 The following capabilities are implemented:
 
@@ -34,11 +35,16 @@ The following capabilities are implemented:
   retail-sales CSV sources;
 - deterministic discovery, SHA-256 source identity, strict parsing, atomic
   validation, provenance, replay semantics, and safe lifecycle logging;
+- deterministic, versioned transformation from `ValidatedBatch` to canonical
+  products and sales lines for all three governed `v1` contracts, with explicit
+  record outcomes and continuous provenance;
+- PostgreSQL-independent local transformation validation that preserves the
+  separation between canonical business records and later persistence;
 - side-effect-free package boundaries for future pipeline areas;
 - unit and integration tests, coverage reporting, and Ruff checks.
 
-Canonical transformation, persistence, orchestration, scheduling, quarantine,
-cloud ingestion, and the complete ETL pipeline remain planned capabilities.
+Persistence, orchestration, scheduling, quarantine, cloud ingestion, and the
+complete ETL pipeline remain planned capabilities.
 
 ## Architecture
 
@@ -138,12 +144,13 @@ the [logging guide](docs/development/logging-guide.md).
 
 ## Testing and quality
 
-Tests cover the Milestone 1 foundation, Milestone 2 database contracts, and the
-Milestone 3 ingestion chain from configured-root discovery through validated
-batch output. Synthetic tracked fixtures prove all three contracts, stable
-content hashing and source identity, distinct replay runs, typed validation,
-file-level atomic failure, and non-disclosure of raw record data in logs. Core
-ingestion tests are PostgreSQL-independent. PostgreSQL tests still require a
+Tests cover the Milestone 1 foundation, Milestone 2 database contracts, the
+Milestone 3 ingestion chain, and the locally implemented Milestone 4 boundary
+from `ValidatedBatch` through canonical transformation outcomes. Synthetic
+tracked fixtures prove all three contracts, stable identity and provenance,
+deterministic replay, exact decimal derivation, ordered outcome accounting, and
+non-disclosure of raw customer data in transformation logs. Core ingestion and
+transformation tests are PostgreSQL-independent. PostgreSQL tests still require a
 separately provisioned database whose configured name ends in `_test`; they
 verify configured and connected names before allowlisted cleanup and never
 create or drop databases.
