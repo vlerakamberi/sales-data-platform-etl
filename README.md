@@ -15,8 +15,7 @@ is a future downstream evolution point, not functionality contained here. The
 other repositories remain separate portfolio concerns.
 
 **Current status:** Milestone 3 — Data Ingestion Layer is complete and
-validated. The Milestone 4 transformation layer is implemented and locally
-validated but not yet formally closed.
+validated. Milestone 4 — Data Transformation Layer is complete and validated.
 
 The following capabilities are implemented:
 

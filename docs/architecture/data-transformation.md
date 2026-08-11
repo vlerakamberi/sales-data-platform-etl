@@ -3,10 +3,10 @@
 ## Purpose and boundary
 
 Milestone 4 transforms validated, source-oriented Milestone 3 records into
-deterministic canonical Northstar business representations. The transformation
-layer is implemented and locally validated but not yet formally closed. This
-document reflects that implementation while preserving the approved
-architecture and its persistence boundary.
+deterministic canonical Northstar business representations. Milestone 4 — Data
+Transformation Layer is complete and validated. This document reflects the
+validated implementation while preserving the approved architecture and its
+persistence boundary.
 
 The logical boundary is:
 
@@ -242,7 +242,7 @@ key, and that `terminal_id` remains source-local context.
 
 The validated boundary ends at `TransformationBatchResult`. It performs no
 aggregation, surrogate-identity resolution, database access, SQL execution, or
-persistence. This local validation is not a claim of formal Milestone 4 closure,
+persistence. Milestone 4 final validation is complete; this is not a claim of
 Repository 1 completion, Data Quality Framework implementation, or orchestration.
 
 ## Explicit non-goals

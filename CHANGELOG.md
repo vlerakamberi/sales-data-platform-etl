@@ -5,6 +5,18 @@ been assigned.
 
 ## Unreleased
 
+### Milestone 4 — Data Transformation Layer
+
+- Completed and validated deterministic canonical transformation for the
+  governed product-catalog, ecommerce-sales, and retail-sales `v1` contracts.
+- Validated explicit ordered outcomes, provenance continuity, transformation
+  ruleset identity, deterministic replay, integral quantities, and exact
+  `Decimal` line-amount derivation.
+- Confirmed the transformation boundary remains PostgreSQL-independent and
+  ends at the persistence-neutral `TransformationBatchResult`.
+- Preserved healthy ingestion, guarded PostgreSQL, and application-startup
+  regression validation without introducing transformation persistence.
+
 ### Milestone 3 — Data Ingestion Layer
 
 - Completed and validated immutable versioned source contracts for product
