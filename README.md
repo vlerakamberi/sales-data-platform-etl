@@ -16,6 +16,7 @@ other repositories remain separate portfolio concerns.
 
 **Current status:** Milestone 3 — Data Ingestion Layer is complete and
 validated. Milestone 4 — Data Transformation Layer is complete and validated.
+Milestone 5 — Data Quality Framework is complete and validated.
 
 The following capabilities are implemented:
 

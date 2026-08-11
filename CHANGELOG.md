@@ -5,6 +5,24 @@ been assigned.
 
 ## Unreleased
 
+### Milestone 5 — Data Quality Framework
+
+- Completed and validated governed, versioned Data Quality contracts with
+  deterministic applicability and evaluation behavior.
+- Added structured `SATISFIED`, `VIOLATED`, `NOT_APPLICABLE`, and
+  `EVALUATION_ERROR` outcomes and explicit quality summary counts.
+- Added the governed Northstar product-SKU uniqueness and transaction-currency
+  consistency expectations with `BLOCKING` policy metadata.
+- Validated local ingestion → canonical transformation → Data Quality
+  composition with continuous authoritative provenance.
+- Confirmed equivalent governed semantic inputs under the same expectation
+  version produce equivalent semantic quality results while traceability-only
+  run identity may differ.
+- Confirmed Data Quality evaluation remains database-independent and
+  orchestration-independent; persistent results and pipeline control remain
+  outside the Milestone 5 framework.
+- Completed successful final validation and closed Milestone 5.
+
 ### Milestone 4 — Data Transformation Layer
 
 - Completed and validated deterministic canonical transformation for the
