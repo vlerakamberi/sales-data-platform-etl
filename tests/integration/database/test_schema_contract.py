@@ -26,6 +26,7 @@ def test_current_database_provenance_schema_and_reference_state_validate(
         1,
         2,
         3,
+        4,
     ]
     assert seed_sales_channels(contract_connection) == ("ECOMMERCE", "RETAIL")
     validate_database_contract(contract_connection)
@@ -37,22 +38,19 @@ def test_older_valid_database_advances_then_validates(
     contract_connection: psycopg.Connection,
 ) -> None:
     with contract_connection.cursor() as cursor:
-        cursor.execute("DROP INDEX ix_returns_order_item_id")
-        cursor.execute("DROP INDEX ix_payments_order_id")
-        cursor.execute("DROP INDEX ix_order_items_product_id")
-        cursor.execute("DROP INDEX ix_orders_store_timestamp")
-        cursor.execute("DROP INDEX ix_orders_customer_id")
-        cursor.execute("DROP INDEX ix_orders_order_timestamp")
-        cursor.execute("DELETE FROM schema_migrations WHERE version = 3")
+        cursor.execute("DROP TABLE pipeline_stage_executions")
+        cursor.execute("DROP TABLE pipeline_executions")
+        cursor.execute("DELETE FROM schema_migrations WHERE version = 4")
     migrations = discover_migrations()
     applied = apply_migrations(contract_connection, migrations)
-    assert [migration.version for migration in applied] == [3]
+    assert [migration.version for migration in applied] == [4]
     seed_sales_channels(contract_connection)
     validate_database_contract(contract_connection)
     assert [row.version for row in inspect_migration_history(contract_connection)] == [
         1,
         2,
         3,
+        4,
     ]
 
 

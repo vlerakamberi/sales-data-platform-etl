@@ -20,6 +20,8 @@ EXPECTED_TABLES = {
     "order_items",
     "payments",
     "returns",
+    "pipeline_executions",
+    "pipeline_stage_executions",
 }
 EXPECTED_SALES_CHANNELS = (
     ("ECOMMERCE", "E-Commerce"),
@@ -146,6 +148,97 @@ EXPECTED_COLUMNS = {
             True,
         ),
     ),
+    "pipeline_executions": (
+        ("pipeline_execution_id", "uuid", "NO", None, None, None, "NO", None, True),
+        ("predecessor_execution_id", "uuid", "YES", None, None, None, "NO", None, True),
+        ("state", "character varying", "NO", 16, None, None, "NO", None, True),
+        (
+            "created_at",
+            "timestamp with time zone",
+            "NO",
+            None,
+            None,
+            None,
+            "NO",
+            None,
+            True,
+        ),
+        (
+            "started_at",
+            "timestamp with time zone",
+            "YES",
+            None,
+            None,
+            None,
+            "NO",
+            None,
+            True,
+        ),
+        (
+            "completed_at",
+            "timestamp with time zone",
+            "YES",
+            None,
+            None,
+            None,
+            "NO",
+            None,
+            True,
+        ),
+        (
+            "failure_category",
+            "character varying",
+            "YES",
+            64,
+            None,
+            None,
+            "NO",
+            None,
+            True,
+        ),
+        ("failure_code", "character varying", "YES", 128, None, None, "NO", None, True),
+    ),
+    "pipeline_stage_executions": (
+        ("pipeline_stage_execution_id", *IDENTITY),
+        ("pipeline_execution_id", "uuid", "NO", None, None, None, "NO", None, True),
+        ("stage", "character varying", "NO", 32, None, None, "NO", None, True),
+        ("stage_sequence", "smallint", "NO", None, 16, 0, "NO", None, True),
+        ("state", "character varying", "NO", 16, None, None, "NO", None, True),
+        (
+            "started_at",
+            "timestamp with time zone",
+            "YES",
+            None,
+            None,
+            None,
+            "NO",
+            None,
+            True,
+        ),
+        (
+            "completed_at",
+            "timestamp with time zone",
+            "YES",
+            None,
+            None,
+            None,
+            "NO",
+            None,
+            True,
+        ),
+        (
+            "failure_category",
+            "character varying",
+            "YES",
+            64,
+            None,
+            None,
+            "NO",
+            None,
+            True,
+        ),
+        ("failure_code", "character varying", "YES", 128, None, None, "NO", None, True),
+    ),
 }
 
 EXPECTED_KEYS = {
@@ -171,6 +264,12 @@ EXPECTED_KEYS = {
     "payments_order_id_fkey": "FOREIGN KEY (order_id) REFERENCES orders(order_id)",
     "returns_pkey": "PRIMARY KEY (return_id)",
     "returns_order_item_id_fkey": "FOREIGN KEY (order_item_id) REFERENCES order_items(order_item_id)",
+    "pipeline_executions_pkey": "PRIMARY KEY (pipeline_execution_id)",
+    "pipeline_executions_predecessor_execution_id_fkey": "FOREIGN KEY (predecessor_execution_id) REFERENCES pipeline_executions(pipeline_execution_id)",
+    "pipeline_stage_executions_pkey": "PRIMARY KEY (pipeline_stage_execution_id)",
+    "pipeline_stage_executions_pipeline_execution_id_fkey": "FOREIGN KEY (pipeline_execution_id) REFERENCES pipeline_executions(pipeline_execution_id)",
+    "uq_pipeline_stage_executions_pipeline_stage": "UNIQUE (pipeline_execution_id, stage)",
+    "uq_pipeline_stage_executions_pipeline_sequence": "UNIQUE (pipeline_execution_id, stage_sequence)",
 }
 
 EXPECTED_CHECKS = {
@@ -199,6 +298,17 @@ EXPECTED_CHECKS = {
     "ck_returns_quantity_positive": "return_quantity>0",
     "ck_returns_amount_non_negative": "return_amountISNULLORreturn_amount>=0",
     "ck_returns_reason_non_blank": "return_reasonISNULLORbtrimreturn_reason<>''",
+    "ck_pipeline_executions_state": "state=ANYARRAY['PENDING'::charactervarying,'RUNNING'::charactervarying,'SUCCEEDED'::charactervarying,'BLOCKED'::charactervarying,'FAILED'::charactervarying][]",
+    "ck_pipeline_executions_predecessor_not_self": "predecessor_execution_idISNULLORpredecessor_execution_id<>pipeline_execution_id",
+    "ck_pipeline_executions_started_at": "started_atISNULLORstarted_at>=created_at",
+    "ck_pipeline_executions_completed_at": "completed_atISNULLORstarted_atISNOTNULLANDcompleted_at>=started_at",
+    "ck_pipeline_executions_failure_consistency": "state='FAILED'ANDfailure_categoryISNOTNULLORstate=ANYARRAY['PENDING'::charactervarying,'RUNNING'::charactervarying,'SUCCEEDED'::charactervarying,'BLOCKED'::charactervarying][]ANDfailure_categoryISNULLANDfailure_codeISNULL",
+    "ck_pipeline_executions_failure_code_category": "failure_codeISNULLORfailure_categoryISNOTNULL",
+    "ck_pipeline_stage_executions_stage_sequence": "stage='INGESTION'ANDstage_sequence=1ORstage='TRANSFORMATION'ANDstage_sequence=2ORstage='DATA_QUALITY'ANDstage_sequence=3",
+    "ck_pipeline_stage_executions_state": "state=ANYARRAY['PENDING'::charactervarying,'RUNNING'::charactervarying,'SUCCEEDED'::charactervarying,'FAILED'::charactervarying,'SKIPPED'::charactervarying][]",
+    "ck_pipeline_stage_executions_shape": "state='PENDING'ANDstarted_atISNULLANDcompleted_atISNULLANDfailure_categoryISNULLANDfailure_codeISNULLORstate='RUNNING'ANDstarted_atISNOTNULLANDcompleted_atISNULLANDfailure_categoryISNULLANDfailure_codeISNULLORstate='SUCCEEDED'ANDstarted_atISNOTNULLANDcompleted_atISNOTNULLANDfailure_categoryISNULLANDfailure_codeISNULLORstate='FAILED'ANDstarted_atISNOTNULLANDcompleted_atISNOTNULLANDfailure_categoryISNOTNULLORstate='SKIPPED'ANDstarted_atISNULLANDcompleted_atISNOTNULLANDfailure_categoryISNULLANDfailure_codeISNULL",
+    "ck_pipeline_stage_executions_failure_code_category": "failure_codeISNULLORfailure_categoryISNOTNULL",
+    "ck_pipeline_stage_executions_timestamp_order": "started_atISNULLORcompleted_atISNULLORcompleted_at>=started_at",
 }
 
 EXPECTED_INDEXES = {
@@ -208,6 +318,15 @@ EXPECTED_INDEXES = {
     "ix_order_items_product_id": ("order_items", ["product_id"]),
     "ix_payments_order_id": ("payments", ["order_id"]),
     "ix_returns_order_item_id": ("returns", ["order_item_id"]),
+    "ix_pipeline_executions_predecessor": (
+        "pipeline_executions",
+        ["predecessor_execution_id"],
+    ),
+    "ix_pipeline_executions_state": ("pipeline_executions", ["state"]),
+    "ix_pipeline_stage_executions_pipeline": (
+        "pipeline_stage_executions",
+        ["pipeline_execution_id"],
+    ),
 }
 
 

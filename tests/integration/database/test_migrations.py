@@ -22,6 +22,8 @@ from sales_data_platform.database.migrations import (
 pytestmark = pytest.mark.postgresql
 
 AUTHORIZED_TABLES_IN_DROP_ORDER = (
+    "pipeline_stage_executions",
+    "pipeline_executions",
     "returns",
     "payments",
     "order_items",
@@ -75,12 +77,12 @@ def migration_connection() -> psycopg.Connection:
         connection.close()
 
 
-def test_clean_database_applies_v001_through_v003(
+def test_clean_database_applies_v001_through_v004(
     migration_connection: psycopg.Connection,
 ) -> None:
     applied = apply_migrations(migration_connection)
 
-    assert [migration.version for migration in applied] == [1, 2, 3]
+    assert [migration.version for migration in applied] == [1, 2, 3, 4]
     with migration_connection.cursor() as cursor:
         cursor.execute(
             """
@@ -119,11 +121,11 @@ def test_older_valid_database_applies_only_missing_migration(
     migration_connection: psycopg.Connection,
 ) -> None:
     migrations = discover_migrations()
-    apply_migrations(migration_connection, migrations[:2])
+    apply_migrations(migration_connection, migrations[:3])
 
     applied = apply_migrations(migration_connection, migrations)
 
-    assert [migration.version for migration in applied] == [3]
+    assert [migration.version for migration in applied] == [4]
 
 
 def test_changed_applied_checksum_is_rejected(
@@ -189,7 +191,7 @@ def test_failed_migration_rolls_back_without_false_history(
 ) -> None:
     migrations = discover_migrations()
     apply_migrations(migration_connection, migrations)
-    failed_path = tmp_path / "V004__fail_transaction.sql"
+    failed_path = tmp_path / "V005__fail_transaction.sql"
     failed_path.write_text(
         "CREATE TABLE commit3_failure_probe (probe_id INTEGER);\nINVALID SQL;\n",
         encoding="utf-8",
@@ -200,7 +202,7 @@ def test_failed_migration_rolls_back_without_false_history(
         apply_migrations(migration_connection, (*migrations, failed))
 
     with migration_connection.cursor() as cursor:
-        cursor.execute("SELECT COUNT(*) FROM schema_migrations WHERE version = 4")
+        cursor.execute("SELECT COUNT(*) FROM schema_migrations WHERE version = 5")
         assert cursor.fetchone() == (0,)
         cursor.execute("SELECT to_regclass('commit3_failure_probe')")
         assert cursor.fetchone() == (None,)

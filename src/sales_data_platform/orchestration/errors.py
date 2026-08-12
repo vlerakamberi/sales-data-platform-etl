@@ -15,3 +15,7 @@ class InvalidLifecycleTransitionError(OrchestrationDomainError):
 
 class InvalidOrchestrationResultError(OrchestrationDomainError):
     """Raised when an orchestration result violates its domain invariants."""
+
+
+class OrchestrationPersistenceError(OrchestrationError):
+    """Raised when required orchestration history cannot be stored or retrieved."""

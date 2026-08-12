@@ -9,6 +9,8 @@ from sales_data_platform.database.migrations import apply_migrations
 
 AUTHORIZED_TABLES_IN_DROP_ORDER = (
     "commit5_unapproved_probe",
+    "pipeline_stage_executions",
+    "pipeline_executions",
     "returns",
     "payments",
     "order_items",

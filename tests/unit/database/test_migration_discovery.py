@@ -83,5 +83,5 @@ def test_checksum_uses_exact_file_bytes(tmp_path: Path) -> None:
 def test_authoritative_migrations_use_centralized_path() -> None:
     migrations = discover_migrations()
 
-    assert [migration.version for migration in migrations] == [1, 2, 3]
+    assert [migration.version for migration in migrations] == [1, 2, 3, 4]
     assert all(migration.path.parent == SQL_MIGRATIONS_DIR for migration in migrations)

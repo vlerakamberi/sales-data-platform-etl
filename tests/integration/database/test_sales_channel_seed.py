@@ -12,6 +12,8 @@ from sales_data_platform.database.seed import seed_sales_channels
 pytestmark = pytest.mark.postgresql
 
 AUTHORIZED_TABLES_IN_DROP_ORDER = (
+    "pipeline_stage_executions",
+    "pipeline_executions",
     "returns",
     "payments",
     "order_items",
