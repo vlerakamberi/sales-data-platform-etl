@@ -5,6 +5,21 @@ been assigned.
 
 ## Unreleased
 
+### Milestone 6 — Pipeline Orchestration
+
+- Completed and validated deterministic local coordination of ingestion,
+  canonical transformation, and business Data Quality evaluation.
+- Added durable PostgreSQL pipeline and stage execution history with governed
+  lifecycle states, controlled failure details, and predecessor correlation.
+- Added controlled manual/local invocation with safe operator output and
+  distinct successful, blocked, failed, and argument-error outcomes.
+- Added immutable pipeline and stage runtime metrics derived only from
+  authoritative persisted timestamps.
+- Completed guarded real-PostgreSQL orchestration validation and full
+  repository regression, quality, dependency, startup, and Git-hygiene checks.
+- Completed successful final validation and closed Milestone 6 while Repository
+  1 remains in active development and is not complete.
+
 ### Milestone 5 — Data Quality Framework
 
 - Completed and validated governed, versioned Data Quality contracts with

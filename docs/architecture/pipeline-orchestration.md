@@ -5,8 +5,8 @@
 Milestone 6 defines the approved architecture for coordinating Repository 1's
 existing ingestion, canonical transformation, and business Data Quality
 capabilities. The orchestration service and manual/local invocation boundary are
-implemented and locally validated, but Milestone 6 is not yet formally closed
-and Repository 1 is not complete.
+implemented and validated. Milestone 6 — Pipeline Orchestration is complete and
+validated; Repository 1 remains in active development and is not complete.
 
 ## Orchestration boundary
 
@@ -235,7 +235,7 @@ transformation, or quality semantics. No exactly-once guarantee is introduced.
 Generic application startup remains database-free. It must not connect to
 PostgreSQL merely because orchestration architecture exists.
 
-A future explicit orchestration invocation may require PostgreSQL because
+The explicit orchestration invocation requires PostgreSQL because
 durable execution-state persistence is part of correctness. Manual or local
 invocation is provided through:
 
@@ -263,9 +263,14 @@ Local unit validation covers argument construction, predecessor parsing,
 service binding, safe output, exit states, operational failures, and connection
 cleanup. The existing guarded PostgreSQL integration test proves real ingestion,
 transformation, Data Quality evaluation, durable ordered execution history, and
-the authoritative final result against a protected `_test` database. This is
-local implementation evidence, not formal Milestone 6 closure. Automatic retry,
-resume, scheduling, concurrency, and broader runtime metrics remain outside this
+the authoritative final result against a protected `_test` database. Immutable
+pipeline and stage runtime metrics are derived only when authoritative start and
+completion timestamps are both present; incomplete and skipped work has no
+duration. Final unit, guarded PostgreSQL integration, full regression, Ruff,
+dependency, startup, and Git-hygiene validation establishes the validated
+Milestone 6 state, subject to completion of the governed Commit 7 Git lifecycle
+and authoritative closure recording. Automatic retry, resume, scheduling,
+concurrency, cross-run aggregation, and monitoring systems remain outside this
 boundary.
 
 ## Concurrency

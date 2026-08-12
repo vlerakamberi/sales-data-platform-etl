@@ -17,8 +17,8 @@ other repositories remain separate portfolio concerns.
 **Current status:** Milestone 3 — Data Ingestion Layer is complete and
 validated. Milestone 4 — Data Transformation Layer is complete and validated.
 Milestone 5 — Data Quality Framework is complete and validated. Milestone 6 —
-Pipeline Orchestration is implemented and locally validated but not yet
-formally closed.
+Pipeline Orchestration is complete and validated. Repository 1 remains in
+active development and is not complete.
 
 The following capabilities are implemented:
 
@@ -45,11 +45,13 @@ The following capabilities are implemented:
 - deterministic coordination of ingestion, transformation, and Data Quality
   for the three governed `v1` contracts, with PostgreSQL-backed execution
   history and a safe manual/local invocation boundary;
+- immutable derived pipeline and stage runtime metrics calculated only from
+  authoritative persisted timestamps;
 - side-effect-free package boundaries for future pipeline areas;
 - unit and integration tests, coverage reporting, and Ruff checks.
 
-Persistence, orchestration, scheduling, quarantine, cloud ingestion, and the
-complete ETL pipeline remain planned capabilities.
+Canonical business-data persistence, scheduling, quarantine, cloud ingestion,
+and later Repository 1 capabilities remain planned.
 
 ## Architecture
 
