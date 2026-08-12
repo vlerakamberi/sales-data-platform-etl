@@ -4,8 +4,9 @@
 
 Milestone 6 defines the approved architecture for coordinating Repository 1's
 existing ingestion, canonical transformation, and business Data Quality
-capabilities. This document is an architecture reference, not an implementation
-plan, and does not claim that Milestone 6 or Repository 1 is complete.
+capabilities. The orchestration service and manual/local invocation boundary are
+implemented and locally validated, but Milestone 6 is not yet formally closed
+and Repository 1 is not complete.
 
 ## Orchestration boundary
 
@@ -236,8 +237,36 @@ PostgreSQL merely because orchestration architecture exists.
 
 A future explicit orchestration invocation may require PostgreSQL because
 durable execution-state persistence is part of correctness. Manual or local
-invocation is conceptually supported, but this architecture does not freeze an
-unverified CLI command or syntax.
+invocation is provided through:
+
+```text
+python -m sales_data_platform.orchestration \
+  --contract-id <contract-id> \
+  --contract-version <version> \
+  --source-path <path> \
+  [--predecessor-execution-id <UUID>]
+```
+
+The supported inputs remain the product-catalog, ecommerce-sales, and
+retail-sales `v1` contracts. The command reuses validated settings, centralized
+logging, explicit PostgreSQL connection infrastructure, and the existing
+orchestration service. It does not apply migrations. Schema through V004 is a
+runtime prerequisite.
+
+The command renders only bounded lifecycle information from the authoritative
+`PipelineResult`. A successful pipeline exits `0`, a blocked pipeline exits `3`,
+and a failed pipeline or controlled operational failure exits `1`; argument
+usage failures retain the argparse exit code `2`. Generic application startup
+remains database-free.
+
+Local unit validation covers argument construction, predecessor parsing,
+service binding, safe output, exit states, operational failures, and connection
+cleanup. The existing guarded PostgreSQL integration test proves real ingestion,
+transformation, Data Quality evaluation, durable ordered execution history, and
+the authoritative final result against a protected `_test` database. This is
+local implementation evidence, not formal Milestone 6 closure. Automatic retry,
+resume, scheduling, concurrency, and broader runtime metrics remain outside this
+boundary.
 
 ## Concurrency
 

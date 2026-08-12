@@ -16,7 +16,9 @@ other repositories remain separate portfolio concerns.
 
 **Current status:** Milestone 3 — Data Ingestion Layer is complete and
 validated. Milestone 4 — Data Transformation Layer is complete and validated.
-Milestone 5 — Data Quality Framework is complete and validated.
+Milestone 5 — Data Quality Framework is complete and validated. Milestone 6 —
+Pipeline Orchestration is implemented and locally validated but not yet
+formally closed.
 
 The following capabilities are implemented:
 
@@ -40,6 +42,9 @@ The following capabilities are implemented:
   record outcomes and continuous provenance;
 - PostgreSQL-independent local transformation validation that preserves the
   separation between canonical business records and later persistence;
+- deterministic coordination of ingestion, transformation, and Data Quality
+  for the three governed `v1` contracts, with PostgreSQL-backed execution
+  history and a safe manual/local invocation boundary;
 - side-effect-free package boundaries for future pipeline areas;
 - unit and integration tests, coverage reporting, and Ruff checks.
 
@@ -113,6 +118,26 @@ python -m pip install -e ".[dev]"
 Copy-Item .env.example .env
 python -m sales_data_platform
 ```
+
+Run one local pipeline execution after configuring PostgreSQL and applying the
+repository migrations through V004:
+
+```powershell
+python -m sales_data_platform.orchestration `
+  --contract-id <northstar.product_catalog|northstar.ecommerce_sales|northstar.retail_sales> `
+  --contract-version 1 `
+  --source-path <path>
+```
+
+An optional predecessor correlation may be supplied with:
+
+```powershell
+--predecessor-execution-id <UUID>
+```
+
+The generic `python -m sales_data_platform` startup remains database-free. The
+orchestration command provides manual/local invocation only: it does not apply
+migrations or introduce automatic retry, resume, scheduling, or concurrency.
 
 Upgrading pip is recommended but optional. Activation commands for other shells
 are in the [setup guide](docs/development/setup-guide.md).
