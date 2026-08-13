@@ -1,114 +1,121 @@
 # Sales Data Platform ETL
 
-This repository is the local data-engineering foundation for the Northstar
-Retail Group portfolio. It now includes a governed local ingestion boundary
-that turns approved source files into validated, provenance-aware batches for
-later transformation and persistence; it does not yet implement the complete
-ETL pipeline.
+Northstar Retail operates across ecommerce and physical retail channels. This
+repository addresses the local data-engineering problem behind that scenario:
+turning governed product and sales CSV sources into validated, traceable
+canonical data while making execution state and failures operationally visible.
 
-## Portfolio role and status
+`sales-data-platform-etl` is a professionally engineered local ETL platform and
+the first stage of a four-repository, enterprise-oriented data engineering
+portfolio. It demonstrates explicit contracts, deterministic processing,
+SQL-first PostgreSQL engineering, governed Data Quality, application-native
+orchestration, durable operational history, and layered automated validation.
 
-This is Repository 1 in a four-repository portfolio. Its role is to establish
-the upstream sales-data platform and, in later milestones, the local ETL
-capabilities that will supply downstream portfolio repositories. Repository 2
-is a future downstream evolution point, not functionality contained here. The
-other repositories remain separate portfolio concerns.
+> **Status:** Milestones 1–7 are complete and validated. Milestone 8 is in
+> progress. Repository 1 remains **NOT COMPLETE**.
 
-**Current status:** Milestone 3 — Data Ingestion Layer is complete and
-validated. Milestone 4 — Data Transformation Layer is complete and validated.
-Milestone 5 — Data Quality Framework is complete and validated. Milestone 6 —
-Pipeline Orchestration is complete and validated. Milestone 7 — Testing is
-complete and validated. Repository 1 remains in active development and is not
-complete.
+## Portfolio position
 
-The following capabilities are implemented:
+The portfolio evolves the same engineering problem through four bounded stages:
 
-- deterministic, centralized repository paths;
-- validated settings with environment and dotenv precedence;
-- centralized console and optional rotating-file logging;
-- a thin `python -m sales_data_platform` bootstrap;
-- explicit PostgreSQL connection infrastructure using validated settings;
-- SQL-first V001/V002/V003 migrations with ordered execution, provenance, and
-  SHA-256 integrity validation;
-- the approved nine-table relational schema and six explicit indexes;
-- deterministic `ECOMMERCE` and `RETAIL` sales-channel reference data;
-- read-only physical-schema and exact reference-data contract validation;
-- guarded real-PostgreSQL tests using a dedicated `_test` database;
-- immutable `v1` contracts for product-catalog, ecommerce-sales, and
-  retail-sales CSV sources;
-- deterministic discovery, SHA-256 source identity, strict parsing, atomic
-  validation, provenance, replay semantics, and safe lifecycle logging;
-- deterministic, versioned transformation from `ValidatedBatch` to canonical
-  products and sales lines for all three governed `v1` contracts, with explicit
-  record outcomes and continuous provenance;
-- PostgreSQL-independent local transformation validation that preserves the
-  separation between canonical business records and later persistence;
-- deterministic coordination of ingestion, transformation, and Data Quality
-  for the three governed `v1` contracts, with PostgreSQL-backed execution
-  history and a safe manual/local invocation boundary;
-- immutable derived pipeline and stage runtime metrics calculated only from
-  authoritative persisted timestamps;
-- side-effect-free package boundaries for future pipeline areas;
-- unit and integration tests, coverage reporting, and Ruff checks.
+1. **Repository 1 — Local ETL foundation:** governed ingestion,
+   transformation, Data Quality, PostgreSQL, orchestration, testing, and local
+   operational readiness.
+2. **Repository 2 — Azure/cloud evolution:** a separate future repository for
+   cloud platform engineering.
+3. **Repository 3 — Big-data evolution:** a separate future repository for
+   distributed and large-scale processing concerns.
+4. **Repository 4 — Warehouse/analytics evolution:** a separate future
+   repository for analytical serving and warehouse concerns.
 
-Canonical business-data persistence, scheduling, quarantine, cloud ingestion,
-and later Repository 1 capabilities remain planned.
+Repositories 2–4 are portfolio direction, not capabilities implemented here.
+Repository 1 establishes the local contracts and evidence from which the later
+Azure data engineering progression can evolve.
 
-## Architecture
+## What is implemented
 
-The implemented dependency direction is deliberately small:
+### Architecture and data flow
 
 ```text
-Application Bootstrap (__main__)
-        │
-        ├───────────────┐
-        ▼               ▼
-Validated Settings   Logging Setup
-        │             /       \
-        ▼            ▼         ▼
-   Common Paths   Settings   Common Paths
+Governed CSV sources
+→ deterministic ingestion and provenance
+→ versioned canonical transformation
+→ governed Data Quality evaluation
+→ application-native pipeline control
+→ durable PostgreSQL execution evidence
 ```
 
-`common.paths` owns path semantics, `config.settings` owns runtime
-configuration, `logging.setup` owns logging behavior, and `database` contains
-explicit connection, migration, seed, and PostgreSQL contract-validation
-infrastructure. Normal application bootstrap remains database-free. See the
-[architecture overview](docs/architecture/architecture-overview.md).
+The assembled pipeline runs ingestion, transformation, and Data Quality
+sequentially. PostgreSQL persists the approved relational foundation and
+authoritative pipeline/stage history. Canonical business-output persistence is
+not yet part of the assembled orchestration path. See the
+[architecture overview](docs/architecture/architecture-overview.md) and
+[database design](docs/architecture/database-design.md).
 
-## Repository structure
+### PostgreSQL and persistence
 
-```text
-config/                     Declarative logging configuration
-data/                       Local raw, staging, curated, and sample areas
-docs/                       Architecture and development documentation
-logs/                       Generated local log output (ignored except placeholder)
-scripts/                    Later-milestone operational scripts
-sql/                        Authoritative migrations, seed, and SQL areas
-src/sales_data_platform/    Python package and application foundation
-tests/                      Unit and guarded PostgreSQL integration tests
-```
+- SQL-first ordered migrations V001–V004 with SHA-256 integrity and migration
+  history validation.
+- An approved relational schema, explicit indexes, reference data, and physical
+  contract validation without an ORM-owned schema model.
+- Durable pipeline and stage execution history, timestamps, terminal state,
+  partial progress, and bounded failure classification.
 
-Local ingestion sources use the configured `INGESTION_SOURCE_ROOT` and the
-layout `<source-family>/v<version>/<file>.csv`. Tracked end-to-end fixtures live
-under `tests/fixtures/ingestion/data/raw/`; runtime data remains under the
-configured source root (default `data/raw`).
+### Governed ingestion
 
-The detailed tracked/generated/placeholder distinctions are documented in the
-[project structure guide](docs/project-structure.md).
+Immutable `v1` contracts cover product catalog, ecommerce sales, and retail
+sales CSV sources. Discovery, strict parsing, atomic validation, SHA-256 source
+identity, distinct run identity, provenance, and deterministic replay are
+explicit contracts. See the
+[ingestion architecture](docs/architecture/data-ingestion.md).
 
-## Implemented technology stack
+### Canonical transformation
 
-- CPython `>=3.13,<3.14` (validated with CPython 3.13.14)
-- Pydantic and pydantic-settings for validated configuration
-- PostgreSQL with Psycopg 3
-- PyYAML and the Python standard-library `logging` package
-- Pytest and pytest-cov
+Versioned rules map validated source batches into immutable canonical products
+and sales lines with ordered outcomes, exact decimal behavior, and continuous
+provenance. The transformation core remains independent of PostgreSQL. See the
+[transformation architecture](docs/architecture/data-transformation.md).
+
+### Governed Data Quality
+
+Versioned expectations produce structured `SATISFIED`, `VIOLATED`,
+`NOT_APPLICABLE`, and `EVALUATION_ERROR` outcomes. A governed blocking violation
+completes Data Quality technically but makes the pipeline `BLOCKED`; it is not a
+technical failure. See the
+[Data Quality architecture](docs/architecture/data-quality.md).
+
+### Pipeline orchestration
+
+The local application coordinates the three fixed stages and returns one of
+`SUCCEEDED`, `BLOCKED`, or `FAILED`. Each attempt receives a new pipeline
+execution identity and separate durable history. Optional predecessor
+correlation does not imply retry or resume. See the
+[orchestration architecture](docs/architecture/pipeline-orchestration.md).
+
+### Observability
+
+Centralized console and optional rotating-file logging supports diagnosis.
+PostgreSQL history remains authoritative for pipeline/stage lifecycle,
+partial-progress visibility, timestamps, and controlled failure metadata.
+Operator output is deliberately bounded and privacy-safe; runtime metrics are
+derived from persisted timestamps. No external monitoring platform is claimed.
+
+## Operational readiness
+
+The [operational runbook](docs/operations/runbook.md) is the canonical guide for
+prerequisites, installation, configuration, PostgreSQL initialization, pipeline
+invocation, evidence review, terminal-state interpretation, troubleshooting,
+manual replay, validation, and safety boundaries.
+
+## Technology demonstrated
+
+- CPython `>=3.13,<3.14` with a `src` package layout
+- PostgreSQL and Psycopg 3
+- SQL-first migrations and relational contract validation
+- Pydantic and pydantic-settings
+- PyYAML and Python centralized logging
+- Pytest, pytest-cov, and guarded real-PostgreSQL integration tests
 - Ruff linting and formatting
-- setuptools with a `src` package layout
-
-SQL migration and seed artifacts are authoritative. Python provides only the
-supporting connection, execution, integrity, and validation boundaries; no ORM
-or alternative schema model is used.
 
 ## Quick start
 
@@ -145,69 +152,68 @@ migrations or introduce automatic retry, resume, scheduling, or concurrency.
 Upgrading pip is recommended but optional. Activation commands for other shells
 are in the [setup guide](docs/development/setup-guide.md).
 
-## Development commands
+## Configuration and security
+
+Validated settings use process environment, then repository-root `.env`, then
+safe defaults. Database access requires the complete five-value `DATABASE_*`
+group; generic application startup remains database-free. `.env.example`
+contains placeholders only, while the ignored `.env` holds environment-specific
+values and must never be committed. See the
+[configuration guide](docs/development/configuration-guide.md),
+[logging guide](docs/development/logging-guide.md), and
+[operational runbook](docs/operations/runbook.md#configuration).
+
+## Testing and validation
+
+The layered test architecture uses the lowest sufficient layer: unit/contract,
+component integration, cross-layer integration, PostgreSQL-backed system, and
+local operator boundary. Guarded system scenarios exercise successful
+execution, governed `BLOCKED`, technical `FAILED`, and deterministic replay
+against a dedicated `_test` database.
+
+Repeatable validation includes:
 
 ```text
-python -m sales_data_platform
 python -m pytest
 python -m ruff check .
 python -m ruff format --check .
 python -m pip check
+python -m sales_data_platform
+python -m sales_data_platform.orchestration --help
 ```
 
-## Configuration and logging
+See the [testing architecture](docs/architecture/testing.md) for strategy and
+the [runbook validation section](docs/operations/runbook.md#validation) for the
+PostgreSQL safety boundary.
 
-The active settings are `APPLICATION_ENV`, `LOG_LEVEL`, `LOG_TO_FILE`, and
-`LOG_DIRECTORY`. Database operations additionally use `DATABASE_HOST`,
-`DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USERNAME`, and
-`DATABASE_PASSWORD` as one complete optional group. Precedence is process
-environment, then repository-root `.env`, then safe defaults. Normal startup
-does not require database configuration. See the
-[configuration guide](docs/development/configuration-guide.md).
+## Architecture decisions and technical navigation
 
-Logging is initialized only through `configure_logging(settings)`. Console
-logging is always enabled after successful setup; rotating-file logging is
-optional and uses the resolved setting supplied by the configuration layer. See
-the [logging guide](docs/development/logging-guide.md).
+| Concern | Authoritative documentation | Decision record |
+| --- | --- | --- |
+| System boundaries | [Architecture overview](docs/architecture/architecture-overview.md) | — |
+| PostgreSQL and migrations | [Database design](docs/architecture/database-design.md) | [ADR-001](docs/adr/ADR-001-sql-first-versioned-migration-strategy.md) |
+| Governed ingestion | [Ingestion architecture](docs/architecture/data-ingestion.md) | [ADR-002](docs/adr/ADR-002-versioned-source-contracts-and-canonical-ingestion-boundary.md) |
+| Canonical transformation | [Transformation architecture](docs/architecture/data-transformation.md) | [ADR-003](docs/adr/ADR-003-canonical-transformation-boundary-and-versioned-transformation-contracts.md) |
+| Data Quality | [Data Quality architecture](docs/architecture/data-quality.md) | [ADR-004](docs/adr/ADR-004-governed-versioned-data-quality-expectations-and-structured-outcomes.md) |
+| Pipeline orchestration | [Orchestration architecture](docs/architecture/pipeline-orchestration.md) | [ADR-005](docs/adr/ADR-005-application-native-pipeline-orchestration-with-durable-execution-state.md) |
+| Operations | [Operational runbook](docs/operations/runbook.md) | — |
+| Testing | [Testing architecture](docs/architecture/testing.md) | — |
 
-## Testing and quality
+Additional references: [project structure](docs/project-structure.md),
+[development setup](docs/development/setup-guide.md), and
+[changelog](CHANGELOG.md).
 
-Tests cover the Milestone 1 foundation, Milestone 2 database contracts, the
-Milestone 3 ingestion chain, and the locally implemented Milestone 4 boundary
-from `ValidatedBatch` through canonical transformation outcomes. Synthetic
-tracked fixtures prove all three contracts, stable identity and provenance,
-deterministic replay, exact decimal derivation, ordered outcome accounting, and
-non-disclosure of raw customer data in transformation logs. Core ingestion and
-transformation tests are PostgreSQL-independent. PostgreSQL tests still require a
-separately provisioned database whose configured name ends in `_test`; they
-verify configured and connected names before allowlisted cleanup and never
-create or drop databases.
+## Known boundaries
 
-Pytest collects from `tests/` and pytest-cov reports coverage for
-`src/sales_data_platform`. Ruff enforces the configured lint and format rules.
-No minimum coverage threshold is currently configured.
+- Repository 1 executes locally and has no Azure/cloud deployment.
+- Execution is manual; there is no scheduler.
+- There is no automatic retry or automatic resume.
+- There is no exactly-once guarantee.
+- Stages are sequential; there is no concurrency guarantee.
+- There is no external monitoring platform.
+- Repository 2 cloud capabilities and Repository 3–4 concerns are intentionally
+  excluded.
 
-## Documentation index
-
-- [Architecture overview](docs/architecture/architecture-overview.md)
-- [Database design](docs/architecture/database-design.md)
-- [Data ingestion architecture](docs/architecture/data-ingestion.md)
-- [ADR-001: SQL-first versioned migrations](docs/adr/ADR-001-sql-first-versioned-migration-strategy.md)
-- [Project structure](docs/project-structure.md)
-- [Setup guide](docs/development/setup-guide.md)
-- [Development guide](docs/development/development-guide.md)
-- [Configuration guide](docs/development/configuration-guide.md)
-- [Logging guide](docs/development/logging-guide.md)
-- [Changelog](CHANGELOG.md)
-
-## Governance and evolution
-
-Work follows the portfolio's frozen Development Workflow Standard and approved
-commit plans. Architecture and scope are agreed before implementation; commits
-remain reviewable, secrets and generated outputs stay out of Git, and existing
-foundation services must be reused rather than duplicated.
-
-Later Repository 1 milestones may add ETL capabilities. Repository 2 may then
-consume governed outputs through its separately approved scope. This
-documentation is not the final Milestone 9 recruiter showcase and does not
-claim planned capabilities or Repository 1 itself as complete.
+These are deliberate Repository 1 boundaries. Milestone 8 and later governed
+work may improve readiness and presentation without implying that Repository 1
+or the wider portfolio is complete.

@@ -11,9 +11,16 @@ with Pydantic and pydantic-settings.
 | `LOG_LEVEL` | `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL` | `INFO` |
 | `LOG_TO_FILE` | Boolean | `false` |
 | `LOG_DIRECTORY` | `pathlib.Path` | Centralized `LOGS_DIR` |
+| `DATABASE_HOST` | Non-empty string or omitted | Not configured |
+| `DATABASE_PORT` | Integer from `1` through `65535` or omitted | Not configured |
+| `DATABASE_NAME` | Non-empty string or omitted | Not configured |
+| `DATABASE_USERNAME` | Non-empty string or omitted | Not configured |
+| `DATABASE_PASSWORD` | Non-empty secret string or omitted | Not configured |
 
-No database configuration currently exists. Database variables, credentials,
-and connection strings are not active settings.
+The five `DATABASE_*` values are one optional group. Database operations require
+all five; supplying only part of the group is rejected. Generic application
+startup may omit the entire group. Keep real credentials only in the ignored
+`.env` or process environment and never commit them.
 
 ## Precedence
 
