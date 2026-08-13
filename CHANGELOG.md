@@ -5,6 +5,22 @@ been assigned.
 
 ## Unreleased
 
+### Milestone 8 — Production Readiness & Portfolio Showcase
+
+- Completed the final implementation validation matrix as closure-readiness
+  evidence: 4 readiness-contract tests, 44 configuration tests, 103
+  orchestration unit tests, and all 16 required PostgreSQL-backed orchestration
+  integration scenarios passed without failures or skips.
+- Confirmed the full repository suite passes with 607 passed, 4 inherited
+  Windows symlink-privilege skips, and 91% total coverage.
+- Confirmed Ruff lint and formatting, dependency health, database-free startup,
+  orchestration CLI help, and repository-controlled documentation/reference
+  integrity checks pass.
+- Prepared Milestone 8 implementation and validation evidence for formal
+  Governance closure review. Formal Milestone 8 closure and Formal Repository 1
+  Final Validation / Closure have not been performed; Repository 1 remains not
+  complete.
+
 ### Milestone 7 — Testing
 
 - Established the authoritative layered testing strategy and inherited
