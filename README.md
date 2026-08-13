@@ -17,8 +17,9 @@ other repositories remain separate portfolio concerns.
 **Current status:** Milestone 3 — Data Ingestion Layer is complete and
 validated. Milestone 4 — Data Transformation Layer is complete and validated.
 Milestone 5 — Data Quality Framework is complete and validated. Milestone 6 —
-Pipeline Orchestration is complete and validated. Repository 1 remains in
-active development and is not complete.
+Pipeline Orchestration is complete and validated. Milestone 7 — Testing is
+complete and validated. Repository 1 remains in active development and is not
+complete.
 
 The following capabilities are implemented:
 

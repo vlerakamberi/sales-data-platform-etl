@@ -5,6 +5,17 @@ been assigned.
 
 ## Unreleased
 
+### Milestone 7 — Testing
+
+- Established the authoritative layered testing strategy and inherited
+  regression-evidence baseline.
+- Added targeted integrated-system validation for governed Data Quality
+  `BLOCKED`, technical `FAILED`, and deterministic replay scenarios.
+- Completed successful final repository regression, coverage, quality,
+  dependency, startup, orchestration CLI, PostgreSQL safeguard, and Git-hygiene
+  validation while Repository 1 remains in active development and is not
+  complete.
+
 ### Milestone 6 — Pipeline Orchestration
 
 - Completed and validated deterministic local coordination of ingestion,
